@@ -1,66 +1,66 @@
-/* function paste() {
-        var result = '';
-		
-		var sandbox = $("#sandbox").val('').select();
-			alert(sandbox.val()+"test");
-        if (document.execCommand('paste')) {
-			alert(sandbox.val());
-			result = sandbox.val();paste
-			//setTimeout(function() {
-            //alert(sandbox.val());
-          //}, 0);
-			alert("CALLED PASTE INSIDE");
-			alert(sandbox.html());
-			
-        }
-        sandbox.val('');
-        return result;
-    } */
-	function getClipboard() {
-    var pasteTarget = document.createElement("div");
-    pasteTarget.contentEditable = true;
-    var actElem = document.activeElement.appendChild(pasteTarget).parentNode;
-    pasteTarget.focus();
-    document.execCommand("Paste", null, null);
-    var paste = pasteTarget.innerText;
-    actElem.removeChild(pasteTarget);
-    return paste;
-};
-    function pasteWithFormats() {
-        $('body').append('<div id="sandbox1" contenteditable="true"></div>');
-        var result = '',
-            sandbox = $('#sandbox1').focus();
-        if (document.execCommand('paste')) {
-            result = sandbox.html();
-        }
-        $('#sandbox1').detach();
-        return result;
+async function getClipboard() {
+    try {
+        let text = await navigator.clipboard.readText();
+        console.log("Clipboard Text:", text);
+        return text;
+    } catch (err) {
+        console.error("Clipboard read failed:", err);
+        return "tesrt"; // Return empty if clipboard read fails
     }
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		  if (request.action === "openTabs" && Array.isArray(request.links)) {
-        request.links.forEach((link) => {
-			let modifiedLink = link.endsWith('?') ? link + 'rein=1' : link + '&rein=1';
-            chrome.tabs.create({ url: modifiedLink, active: false }, (tab) => {
-                chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
-                    func: () => {
-                        const nextButton = document.getElementById('next_button');
-                        if (nextButton) nextButton.click();
-                    },
-                });
-            });
-        });
-        sendResponse({ status: "success", message: `${request.links.length} tabs opened.` });
+}
+
+async function pasteWithFormats() {
+    try {
+        let text = await navigator.clipboard.readText();
+        let formattedText = `<div>${text.replace(/\n/g, "<br>")}</div>`; // Simple HTML formatting
+        console.log("Formatted Clipboard Content:", formattedText);
+        return formattedText;
+    } catch (err) {
+        console.error("Clipboard formatted read failed:", err);
+        return "test";
     }
-		           
-        if (request.method == "getClipText") {
-			var a = getClipboard();
-            var b = pasteWithFormats();
+}
+
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "openTabs" && Array.isArray(request.links)) {
+        (async () => {
+            for (let link of request.links) {
+                let modifiedLink = link.includes('?') ? link + 'rein=1' : link + '&rein=1';
+                let tab = await browser.tabs.create({ url: modifiedLink, active: false });
+
+                try {
+                    await browser.tabs.executeScript(tab.id, {
+                        code: `
+                            (function() {
+                                let nextButton = document.getElementById('next_button');
+                                if (nextButton) nextButton.click();
+                            })();
+                        `
+                    });
+                } catch (err) {
+                    console.error("Script execution error:", err);
+                }
+            }
+            sendResponse({ status: "success", message: `${request.links.length} tabs opened.` });
+        })();
+        return true; // Required for async response
+    }
+
+    if (request.method === "getClipText") {
+        (async () => {
+            let a = await getClipboard();
+            let b = await pasteWithFormats();
             sendResponse({ data: a, frmtdData: b });
-        }
-        else
-			sendResponse({}); // snub them.
-    });
+        })();
+        return true; // Required for async response
+    }
+});
+
+
+
+
+
+
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.method == "notification") {
             var notify = webkitNotifications.createNotification("" + request.image, request.header, request.message);

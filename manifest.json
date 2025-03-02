@@ -1,27 +1,55 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
-  "name": "SRI Lighthouse-3.5",
- "manifest_version": 2,
-  "version": "3.5",
+  "name": "SRI Lighthouse V3.6.1",
+  "manifest_version": 2,
+  "version": "3.6.1",
   
   "description": "Lighthouse Survey tester.",
   "browser_action": {
     "default_icon": "logo.png",
-    "default_popup" : "tester.html",
-	"scripts": ["tester1.js", "jquery.min.js","xlsx.full.min.js"]
+    "default_popup": "tester.html"
   },
-  "background": "background.html",
   "background": {
-  "scripts": ["background1.js", "jquery.min.js","xlsx.full.min.js"],
-  "permissions": ["scripting","tabs","clipboardWrite","contextMenus","clipboardRead","cookies","debugger","unlimited_storage","notifications"]
+    "scripts": ["background1.js", "jquery-3.7.1.min.js", "xlsx.full.min.js"],
+    "persistent": true
   },
-  "permissions": ["tabs","http://localhost/*","https://selfserve.decipherinc.com/survey/*","https://*.sawtoothsoftware.com/*","https://sridemo2.sawtoothsoftware.com/*","https://sw.ktrmr.com/*","https://sv.ktrmr.com/*","https://sz.ktrmr.com/*","file:///D:/tablescheck/*","tabs","clipboardWrite","contextMenus","clipboardRead","cookies","debugger","unlimited_storage","notifications","http://*/*","https://*/*","scripting"],
+  "permissions": [
+    "tabs",
+    "scripting",
+    "clipboardWrite",
+    "contextMenus",
+    "clipboardRead",
+    "cookies",
+    "debugger",
+    "unlimited_storage",
+    "notifications",
+    "http://localhost/*",
+    "https://selfserve.decipherinc.com/survey/*",
+    "https://*.sawtoothsoftware.com/*",
+    "https://sridemo2.sawtoothsoftware.com/*",
+    "https://sw.ktrmr.com/*",
+    "https://sv.ktrmr.com/*",
+    "https://sz.ktrmr.com/*",
+    "file:///D:/tablescheck/*",
+    "http://*/*",
+    "https://*/*"
+  ],
   "content_scripts": [
-   {
-      "matches": ["http://localhost/*","https://selfserve.decipherinc.com/survey/*","https://sridemo2.sawtoothsoftware.com/*","https://*.sawtoothsoftware.com/*"],
-      "css":["myCSS.css"],
-      "js": ["jquery.js","underscore.js", "MintX.js", "shortcut.js", "tester1.js","xlsx.full.min.js"]
-   }
+    {
+      "matches": [
+        "http://localhost/*",
+        "https://selfserve.decipherinc.com/survey/*",
+        "https://sridemo2.sawtoothsoftware.com/*",
+        "https://*.sawtoothsoftware.com/*"
+      ],
+      "css": ["myCSS.css"],
+      "js": [
+        "jquery-3.7.1.min.js",
+        "underscore.js",
+        "MintX.js",
+        "shortcut.js",
+        "tester1.js",
+        "xlsx.full.min.js"
+      ]
+    }
   ]
 }

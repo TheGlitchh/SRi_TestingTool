@@ -257,3 +257,22 @@
 			label{
 				cursor: pointer
 			}
+
+			@keyframes spin-clockwise {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+			
+			@keyframes spin-anticlockwise {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(-360deg); }
+			}
+			
+			.spin-cw {
+				animation: spin-clockwise 1s linear;
+			}
+			
+			.spin-ccw {
+				animation: spin-anticlockwise 1s linear;
+			}
+			

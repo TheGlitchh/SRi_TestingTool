@@ -51,22 +51,126 @@
     `);
     
     // Toggle animation
-    $('.button11').live('click', function () {
-        let menu = $('#LightSwitchMenuIt');
-        
-        if (menu.height() === 0) {
-            menu.animate({ height: '50px' }, 2);
-             var svg = $(this).find('svg');
-        svg.css('transition', 'transform 1s linear'); // Set transition for smooth spinning
-        svg.css('transform', 'rotate(360deg)');
-        } else {
-            menu.animate({ height: '0px' }, 2);
-            svg.css({
-                'transition': 'transform 1s linear', // Correct property
-                'transform': 'rotate(0deg)' // Reset rotation
+ $('.button11').on('click', function () {
+    let menu = $('#LightSwitchMenuIt');
+    let svg = $(this).find('svg');
+
+    if (menu.height() === 0) {
+        menu.animate({ height: '50px' }, 2);
+    } else {
+        menu.animate({ height: '0px' }, 2);
+    }
+
+    // Toggle between clockwise and anticlockwise rotation
+    if (svg.hasClass('spin-cw')) {
+        svg.removeClass('spin-cw').addClass('spin-ccw');
+    } else {
+        svg.removeClass('spin-ccw').addClass('spin-cw');
+    }
+});
+
+/*$('#LightSwitchVerifyLogics').on('click', function () {
+    console.log("Starting validation and verification of questions...");
+
+    $('div.question').each(function () {
+        let $q = $(this);
+        let questionType = "Unknown";
+        let validationPassed = false;
+
+        // 1. Single-Select (Radio Buttons)
+        if ($q.find('input[type="radio"]').length > 0) {
+            questionType = "Single Select";
+            if ($q.find('input[type="radio"]:checked').length === 0) {
+                $q.find('input[type="radio"]').first().prop('checked', true);
+            }
+            validationPassed = $q.find('input[type="radio"]:checked').length > 0;
+        }
+        // 2. Multi-Select (Checkboxes)
+        else if ($q.find('input[type="checkbox"]').length > 0) {
+            questionType = "Multi Select";
+            if ($q.find('input[type="checkbox"]:checked').length === 0) {
+                $q.find('input[type="checkbox"]').prop('checked', true);
+            }
+            validationPassed = $q.find('input[type="checkbox"]:checked').length > 0;
+        }
+        // 3. Dropdown (Combo Box)
+        else if ($q.find('select').length > 0) {
+            questionType = "Dropdown";
+            let $select = $q.find('select');
+            if (!$select.val() || $select.val() === "") {
+                let $firstValid = $select.find('option').filter(function() {
+                    return $(this).val() !== "";
+                }).first();
+                if ($firstValid.length > 0) {
+                    $select.val($firstValid.val());
+                }
+            }
+            validationPassed = $select.val() && $select.val() !== "";
+        }
+        // 4. Open-End (Text Input / Textarea)
+        else if ($q.find('input[type="text"], textarea').length > 0) {
+            questionType = "Open End";
+            let $input = $q.find('input[type="text"], textarea');
+            if (!$input.val() || $input.val().trim() === "") {
+                $input.val("Test Answer");
+            }
+            validationPassed = $input.val().trim() !== "";
+        }
+        // 5. Ranking Questions
+        else if ($q.hasClass('ranking')) {
+            questionType = "Ranking";
+            let allRanked = true;
+            $q.find('input.ranking-input').each(function () {
+                if (!$(this).val() || $(this).val().trim() === "") {
+                    allRanked = false;
+                }
             });
+            validationPassed = allRanked;
+        }
+        // 6. Constant Sum Questions
+        else if ($q.hasClass('constant-sum')) {
+            questionType = "Constant Sum";
+            let requiredSum = parseFloat($q.data('required-sum')) || 100;
+            let total = 0;
+            $q.find('input.constant-sum-input').each(function () {
+                let val = parseFloat($(this).val());
+                if (!isNaN(val)) {
+                    total += val;
+                }
+            });
+            validationPassed = (total === requiredSum);
+        }
+
+        if (validationPassed) {
+            console.log(`${questionType} validation PASSED ✅`);
+        } else {
+            console.error(`${questionType} validation FAILED ❌`);
         }
     });
+
+    // Inject script to execute SSI_Verify() within the page context
+    let script = document.createElement('script');
+    script.textContent = `
+        (function() {
+            if (typeof SSI_Verify === "function") {
+                let verifyResult = SSI_Verify();
+                console.log("SSI_Verify() executed. Result:", verifyResult);
+            } else {
+                console.error("SSI_Verify() function is not found on the page.");
+            }
+        })();
+    `;
+    document.documentElement.appendChild(script);
+    script.remove();
+
+    console.log("All question validations processed.");
+}); */
+
+
+
+
+
+
     
 	
 	var LightSwitchDropZone = document.getElementById('LightSwitchDropZone');
@@ -80,60 +184,60 @@
     var PID = QuestionProperties().PID;
     $('body').append('<div id="LightSwitchNoteBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
     $('#LightSwitchNoteBox').html('<center><input type="radio" name="LightSwitchNoteSelector" id="LightSwitchNote" class="LightSwitchNote"/><label for="LightSwitchNote"   style="margin-right: 3px">Note</label><input type="radio" name="LightSwitchNoteSelector" class="LightSwitchNote" id="LightSwitchReminder" /><label for="LightSwitchReminder" style="padding-right:3px">Reminder</label><input type="text" placeholder="QID" id="LightSwitchQuestion" class="LightSwitchNavigators" style="width: 20px"/><input type="text" placeholder="PID" id="LightSwitchProject" class="LightSwitchNavigators" style="width: 80px"/><br><textarea id="LightSwitchNotepadArea" class="LightSwitchNavigators" style="height: 150px;width: 90%;resize: none" placeholder="Please write here"></textarea><input type="button" id="LightSwitchAddNoteButton" value="Add Note" class="LightSwitchNavigators"/><br><div id="LightSwitchNotepadExportArea" style="height: 350px;width: 320px"></div><br><a href="" id="LightSwitchNoteExportButton" class="LightSwitchNavigators">Export</a><input type="button" id="LightSwitchNoteDeleteButton" value="Delete" class="LightSwitchNavigators"/><input type="button" id="LightSwitchNoteSaveButton" value="Save" class="LightSwitchNavigators"/> <input type="button" id="ImageMapping" value="Image Mapping" class="LightSwitchNavigators"/><input type="button" id="RESPNUM" value="Resp Number" class="LightSwitchNavigators"/><input type="button" id="Captcha" value="Submit Captcha" class="LightSwitchNavigators"/></center>');
-    $('#LightSwitchAddNoteInvoker').live('click', function () {
+    $('#LightSwitchAddNoteInvoker').on('click', function () {
         $('#LightSwitchNoteBox').slideToggle('slow');
         $('#LightSwitchCodePadBox').hide();
         $('#LightSwitchPropertiesBox').hide();
     });
     $('body').append('<div id="LightSwitchCodePadBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
     $('#LightSwitchCodePadBox').html('<center><input type="radio" name="LightSwitchCodeSelector" id="LightSwitchScriptSelector"/><label for="LightSwitchScriptSelector" style="margin-right: 3px">Script</label><input type="radio" name="LightSwitchCodeSelector" id="LightSwitchStyleSelector"/><label for="LightSwitchStyleSelector">Style</label><br><textarea id="LightSwitchCodepadArea" style="width: 90%;height: 200px;resize: none" class="LightSwitchNavigators"></textarea><br><input type="radio" name="LightSwitchInjectTypeSelector" id="LightSwitchAppendSelector"/><label for="LightSwitchAppendSelector" style="margin-right: 3px">Append</label><input type="radio" name="LightSwitchInjectTypeSelector" id="LightSwitchNewInjSelector"/><label for="LightSwitchNewInjSelector">Overwrite</label><input type="button" id="LightSwitchCodeInjectButton" value="Inject Code" class="LightSwitchNavigators"/><input type="button" id="ImageMapping" value="Image Mapping" class="LightSwitchNavigators"/><input type="button" id="RESPNUM" value="Resp Number" class="LightSwitchNavigators"/><input type="button" id="Captcha" value="Submit Captcha" class="LightSwitchNavigators"/></center>');
-    $('#LightSwitchAddCodeInvoker').live('click', function () {
+    $('#LightSwitchAddCodeInvoker').on('click', function () {
         $('#LightSwitchCodePadBox').slideToggle('slow');
         $('#LightSwitchNoteBox').hide();
         $('#LightSwitchPropertiesBox').hide();
     });
     $('body').append('<div id="LightSwitchPropertiesBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
     $('#LightSwitchPropertiesBox').html('');
-    $('#LightSwitchPropertiesInvoker').live('click', function () {
+    $('#LightSwitchPropertiesInvoker').on('click', function () {
         $('#LightSwitchPropertiesBox').slideToggle('slow');
         $('#LightSwitchNoteBox').hide();
         $('#LightSwitchCodePadBox').hide();
     });
 
     $('body').append('<div id="LightSwitchAboutBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
-    $('#LightSwitchLOGO').live('click', function () {
+    $('#LightSwitchLOGO').on('click', function () {
         chrome.extension.sendRequest({ method: "notification", image: "logo.png", message: "This tool is developed and actively maintained by SRIHYD.", header: "Contact" }, function (response) { });
     });
 
 	 $('body').append('<div id="LightSwitchAboutBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
 	
-	$('#UseFulLinks').live('click', function () {			
+	$('#UseFulLinks').on('click', function () {			
 			window.open('http://cdn.tns-global.com/multimedia/UK/usefulllinks/LINKS.html');
 	 });
 
-	$('#ImageMapping').live('click', function () {			
+	$('#ImageMapping').on('click', function () {			
 			window.open('https://www.image-map.net/');
 	 });	 
 
-	$('#RESPNUM').live('click', function () {			
+	$('#RESPNUM').on('click', function () {			
 			var txt = $("input[name='hid_respnum']").val();
 			var respnum = txt.split(",");
 			alert(respnum[0]);
 	 });		 
-	$('#Captcha').live('click', function () {			
+	$('#Captcha').on('click', function () {			
 			var capt = $("div[id='CaptchaDiv']").html();
 			$("input[id='Captcha_r2_c1']").val(capt);
-			$('#next_button').size() > 0 ? $('#next_button').click() : 0;
+			$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 			$('#next_button').click();
 	 });
-	$('#Admin').live('click', function () {			
+	$('#Admin').on('click', function () {			
 			var original_url = document.URL;
 			var admin_url;
 			var x=original_url.split("/cgi-bin/")[0];
 			admin_url=x+"/cgi-bin/admin.pl";
 			window.open(admin_url);
 	 });
-	$('#Login').live('click', function () {
+	$('#Login').on('click', function () {
 			var original_url = document.URL;
 			var x=original_url.split("/cgi-bin/")[1].split(".pl")[0];
 			if(x=="admin")
@@ -146,7 +250,7 @@
 			{
 				var cred=$("#credentials").val();
 				$("#Username,#Password").val(cred);
-				$('#next_button').size() > 0 ? $('#next_button').click() : 0;
+				$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 				$('#next_button').click();
 			}
 	});		 
@@ -154,7 +258,7 @@
 
     $('#LightSwitchProject').val(QuestionProperties().PID);
     $('#LightSwitchQuestion').val(QuestionProperties().QID);
-    $('#LightSwitchAddNoteButton').live('click', function () {
+    $('#LightSwitchAddNoteButton').on('click', function () {
         var PID = $('#LightSwitchProject').val();
         var QID = $('#LightSwitchQuestion').val();
         var NoteType;
@@ -205,7 +309,7 @@
             $('#LightSwitchNotepadExportArea').html("No Data Found!");
         }
     }
-    $('.LightSwitchNote').live('change', function () {
+    $('.LightSwitchNote').on('change', function () {
         var Dat = QuestionProperties();
         var PID = Dat.PID;
         var NoteType;
@@ -234,7 +338,7 @@
         $('#LightSwitchNoteExportButton').attr('href', ExportText);
         LightSwitchNotesUpdater();
     });
-    $('#LightSwitchCodeInjectButton').live('click', function () {
+    $('#LightSwitchCodeInjectButton').on('click', function () {
         var CodeType = "";
         if ($('#LightSwitchScriptSelector').prop('checked') == true) {
             CodeType = "script";
@@ -254,7 +358,7 @@
             });
         }
     });
-    $('#LightSwitchNoteDeleteButton').live('click', function () {
+    $('#LightSwitchNoteDeleteButton').on('click', function () {
         $('input.LightSwitchNoteFinalizer').filter(':checked').each(function () {
             $(this).closest('tr').detach();
         });
@@ -279,7 +383,7 @@
             localStorage.setItem(NoteType, str);
         });
     }
-    $('#LightSwitchNoteSaveButton').live('click', function () {
+    $('#LightSwitchNoteSaveButton').on('click', function () {
         LightSwitchSaveNow();
         LightSwitchNotesUpdater();
     });
@@ -316,7 +420,7 @@
         localStorage.setItem('LightSwitchSettings', JSON.stringify(infiniteScrollEnabled));
     }
     LightSwitchUpdateSettings();
-    $('#LightSwitchSettingsBox').live('change', function () {
+    $('#LightSwitchSettingsBox').on('change', function () {
         var PreCodeSetting = $('#LightSwitchPrecode').prop('checked') == true ? "true" : "false";
         var DeveloperMode = $('#LightSwitchDeveloper').prop('checked') == true ? "true" : "false";
         var FormattingsMode = $('#LightSwitchFormats').prop('checked') == true ? "true" : "false";
@@ -347,7 +451,7 @@
 			GOTOScript = Data.GOTOScript;
         if (GOTOScript == "true") {
             //$('#LightSwitchGOTO').prop('checked', true);
-            // if ($('.LSPRECODE').size() < 1) {
+            // if ($('.LSPRECODE').length  < 1) {
                 // DisplayPrecode();
             // }
 			//alert("Feature is coming soon.");
@@ -355,19 +459,19 @@
         }
         if (PrecodeSetting == "true") {
             $('#LightSwitchPrecode').prop('checked', true);
-            if ($('.LSPRECODE').size() < 1) {
+            if ($('.LSPRECODE').length  < 1) {
                 DisplayPrecode();
             }
         }
         if (Developer == "true") {
             $('#LightSwitchDeveloper').prop('checked', true);
-            if ($('.LSDMODE').size() < 1) {
+            if ($('.LSDMODE').length  < 1) {
                 DeveloperMode();
             }
         }
         if (Formats == "true") {
             $('#LightSwitchFormats').prop('checked', true);
-            if ($('.LSFormats').size() < 1) {
+            if ($('.LSFormats').length  < 1) {
                 LightSwitchFormats();
             }
         }
@@ -393,14 +497,14 @@
 		//if (AutoSubmit == "true") {
           // $('#LightSwitchAutoSubmit').prop('checked',true);
 			//AutoSubmitTimer = setTimeout(function(){	
-			//	$('#next').size() > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
+			//	$('#next').length  > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
 //			},1500);
   //      }
 		if (AutoSubmit == "true") {
            $('#LightSwitchAutoSubmit').prop('checked',true);
 			AutoSubmitTimer = setTimeout(function(){	
 				$('#LightSwitchRandom').click();
-				//$('#next').size() > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
+				//$('#next').length  > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
 			},1500);
        }
 
@@ -415,8 +519,8 @@
     }
     function DisplayPrecode() {
         var obj = $('.mrQuestionTable').not('#LightSwitchSettingsBox');
-        var Singles = obj.find('.mrSingleText').size() > 0 && obj.find('.mrSingle').size() > 0 && obj.find('.mrGridCategoryText').size() < 1;
-        var Multi = obj.find('.mrMultipleText').size() > 0 && obj.find('.mrMultiple').size() > 0 && obj.find('.mrGridCategoryText').size() < 1;
+        var Singles = obj.find('.mrSingleText').length  > 0 && obj.find('.mrSingle').length  > 0 && obj.find('.mrGridCategoryText').length  < 1;
+        var Multi = obj.find('.mrMultipleText').length  > 0 && obj.find('.mrMultiple').length  > 0 && obj.find('.mrGridCategoryText').length  < 1;
         if (Singles || Multi) {
             obj.find(':radio,:checkbox').each(function () {
                 $('<span class="LSPRECODE">[' + $(this).attr('value').replace('_', '') + ']</span>').insertAfter($(this));
@@ -431,7 +535,7 @@
     }
     function LightSwitchFormats() {
         var obj = $('body');
-        if ($('b,i,u,sup,sub,strong,a,.corner_label_text, .grid_header, .grid_footer').size() > 0) {
+        if ($('b,i,u,sup,sub,strong,a,.corner_label_text, .grid_header, .grid_footer').length  > 0) {
             obj.find('b,i,u,sup,sub,strong').wrap('<span class="LSFormats" style="background-color:#7fc0de"></span>');
 			obj.find(".corner_label_text, .grid_header, .grid_footer").each(function(){
 				var html=$(this).html();
@@ -492,12 +596,12 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     function LightSwitchQuestionType(obj) {
-        var Singles = obj.find('.mrSingleText').size() > 0 && obj.find('.mrSingle').size() > 0 && obj.find('.mrGridCategoryText').size() < 1;
-        var Numeric = obj.find('.mrEdit').size() == 1 && obj.find('.mrGridCategoryText').size() < 1 && obj.find('.mrSingle').size() < 1 && obj.find('.mrMultiple').size() < 1;
-        var NumericList = obj.find('.mrEdit').size() > 1 && obj.find('.mrGridCategoryText').size() > 0 && obj.find('.mrSingle').size() < 1 && obj.find('.mrMultiple').size() < 1;
-        var Multi = obj.find('.mrMultipleText').size() > 0 && obj.find('.mrMultiple').size() > 0 && obj.find('.mrGridCategoryText').size() < 1;
-        var SingleGrid = obj.find('.mrGridCategoryText').size() > 0 && obj.find('.mrSingle').size() > 0;
-        var ThreeDGrid = obj.find('.mrGridCategoryText').size() > 0 && obj.find('.mrMultiple').size() > 0;
+        var Singles = obj.find('.mrSingleText').length  > 0 && obj.find('.mrSingle').length  > 0 && obj.find('.mrGridCategoryText').length  < 1;
+        var Numeric = obj.find('.mrEdit').length  == 1 && obj.find('.mrGridCategoryText').length  < 1 && obj.find('.mrSingle').length  < 1 && obj.find('.mrMultiple').length  < 1;
+        var NumericList = obj.find('.mrEdit').length  > 1 && obj.find('.mrGridCategoryText').length  > 0 && obj.find('.mrSingle').length  < 1 && obj.find('.mrMultiple').length  < 1;
+        var Multi = obj.find('.mrMultipleText').length  > 0 && obj.find('.mrMultiple').length  > 0 && obj.find('.mrGridCategoryText').length  < 1;
+        var SingleGrid = obj.find('.mrGridCategoryText').length  > 0 && obj.find('.mrSingle').length  > 0;
+        var ThreeDGrid = obj.find('.mrGridCategoryText').length  > 0 && obj.find('.mrMultiple').length  > 0;
         var QID = QuestionProperties().QID;
         var PID = QuestionProperties().PID;
         if (Singles) {
@@ -544,13 +648,13 @@
                 $(this).find('input:random').prop('checked', true);
             });
         }
-        if (obj.find('select').size() > 0) {
+        if (obj.find('select').length  > 0) {
             obj.find('select').each(function () {
                 var value = $(this).find('option:random').val();
                 $(this).val(value);
             });
         }
-        if (obj.find(':text').size() > 0) {
+        if (obj.find(':text').length  > 0) {
             obj.find(':text').each(function () {
                 $(this).closest('input').prop('checked', true);
                 $(this).val(getRandomInt(18, 99));
@@ -566,40 +670,51 @@
 		$('#DupW').css('background-color','rgb(172, 180, 181)');
     }
 	
-
-    function sInvoker() {
-        chrome.runtime.sendMessage({ method: "getClipText" }, function (response) {
-            var Dat = response.data;
-            Dat.length > 0 ? $('#NotFounds').remove() : 0;
-            var frmtdData = response.frmtdData;
-            frmtdData = $('<div></div>').append(frmtdData);
-            var formats = { "b": [], "u": [], "s": [], "i": [], "sub": [], "sup": [] };
+    async function sInvoker() {
+        try {
+            let clipboardText = await navigator.clipboard.readText();
+            if (!clipboardText.trim()) return;
+    
+            $('#NotFounds').remove();
+            let frmtdData = $('<div></div>').append(clipboardText);
+            let formats = { "b": [], "u": [], "s": [], "i": [], "sub": [], "sup": [] };
+    
             frmtdData.find('b,i,s,u,sup,sub').each(function () {
-                formats["" + this.nodeName.toLowerCase() + ""].push($(this).text());
+                formats[this.nodeName.toLowerCase()].push($(this).text());
             });
-            var a = "";
-			//a = doFSearch(formats);
-            var b = doSearch(Dat.split('\n'));
-            var st = "";
+    
+            let a = ""; // Placeholder for formatting search if needed
+            let b = doSearch(clipboardText.split('\n'));
+    
+            let st = "";
             if (b.length > 0) {
                 st += "<center><h3>Mismatches</h3></center>";
                 _.each(b, function (c, count) {
-                    st += "<br><input type='checkbox'><i><b>" + (count + 1) + "</b></i>:   " + c;
+                    st += `<br><input type='checkbox'><i><b>${count + 1}</b></i>:   ${c}`;
                 });
             }
             if (a.length > 0) {
-                st += (st.length > 0 ? "<br>" : "") + "<center><h3>Formattings Warnings</h3></center>";
+                st += (st.length > 0 ? "<br>" : "") + "<center><h3>Formatting Warnings</h3></center>";
                 _.each(a, function (c, count) {
-                    st += "<br><input type='checkbox'><i><b>" + (count + 1) + "</b></i>:   " + c;
+                    st += `<br><input type='checkbox'><i><b>${count + 1}</b></i>:   ${c}`;
                 });
             }
+    
             if (st.length > 0) {
-                $('body').prepend('<div id="NotFounds" style="width:100%;border:1px solid gray;background-color:#E6E6FA;maximum-height:200px;he;overflow:scroll"></div>');
+                $('body').prepend('<div id="NotFounds" style="width:100%; border:1px solid gray; background-color:#E6E6FA; max-height:200px; overflow:scroll"></div>');
                 $('#NotFounds').html(st);
             }
-            //$('input[type="submit"]').hide();
-        });
+        } catch (err) {
+            console.error("Clipboard read failed:", err);
+        }
     }
+    
+    
+    // Attach it to double-click event
+    $(document).dblclick(function () { 
+        sInvoker(); 
+    });
+    
 
     function setupDragAndDrop() {
         
@@ -694,8 +809,8 @@
     
     
     
-    $('#NotFounds :checkbox').live('change', function () {
-        if ($('#NotFounds :checkbox:checked').size() == $('#NotFounds :checkbox').length) {
+    $('#NotFounds :checkbox').on('change', function () {
+        if ($('#NotFounds :checkbox:checked').length  == $('#NotFounds :checkbox').length) {
             $('input[type="submit"]').show();
         }
         else {
@@ -714,7 +829,7 @@
     $(document).dblclick(function () { sInvoker(); });
     function doSearch(textGroup) {
         var NotFounds = [];
-        if (textGroup.length > 0) { if ($('#NotFounds').size() > 0) { $('#NotFounds').detach(); } }
+        if (textGroup.length > 0) { if ($('#NotFounds').length  > 0) { $('#NotFounds').detach(); } }
         document.designMode = "on";
         _.each(textGroup, function (text) {
             text = text.replace(/^\s+|(\s+(?!\S))/mg, "");
@@ -723,7 +838,7 @@
                 if (window.find && window.getSelection) {
                     var sel = window.getSelection(); sel.collapse(document.body, 0); document.body.offsetHeight;
                     if (window.find(text, true)) {
-						var multisize = $('body').find('.mrMultiple').size();
+						var multisize = $('body').find('.mrMultiple').length ;
 						var color1 = "rgb(210, 121, 121)", color2 = "rgb(172, 180, 181)";
 						if (multisize>6) {
 							color1 = "rgb(255, 102, 0)";
@@ -814,41 +929,41 @@
                 } else { NotFounds.push(text); }
             }
         });
-        if (bolds.length == 0 && $(document).find('b').size() > 0) {
+        if (bolds.length == 0 && $(document).find('b').length  > 0) {
             $(document).find('b,strong').each(function () {
                 NotFounds.push("<span style='color:red'>" + $(this).text() + "</span> is given in Bold. But it is in regular in Doc. Please check.");
             });
         }
-        if (italics.length == 0 && $(document).find('i').size() > 0) {
+        if (italics.length == 0 && $(document).find('i').length  > 0) {
             $(document).find('i').each(function () {
                 NotFounds.push("<span style='color:red'>" + $(this).text() + "</span> is given in Italic. But it is in regular in Doc. Please check.");
             });
         }
-        if (underlines.length == 0 && $(document).find('u').size() > 0) {
+        if (underlines.length == 0 && $(document).find('u').length  > 0) {
             $(document).find('u').each(function () {
                 NotFounds.push("<span style='color:red'>" + $(this).text() + "</span> is given in Underline. But it is in regular in Doc. Please check.");
             });
         }
-        if (superTexts.length == 0 && $(document).find('sup').size() > 0) {
+        if (superTexts.length == 0 && $(document).find('sup').length  > 0) {
             $(document).find('sup').each(function () {
                 NotFounds.push("<span style='color:red'>" + $(this).text() + "</span> is given with superscript. But it is in regular in Doc. Please check.");
             });
         }
-        if (superTexts.length == 0 && $(document).find('sub').size() > 0) {
+        if (superTexts.length == 0 && $(document).find('sub').length  > 0) {
             $(document).find('sub').each(function () {
                 NotFounds.push("<span style='color:red'>" + $(this).text() + "</span> is given with subscript. But it is in regular in Doc. Please check.");
             });
         }
         return NotFounds;
     }
-    $('#LightSwitchMatch').live('click', function () {
+    $('#LightSwitchMatch').on('click', function () {
         sInvoker();
     });
-    $('#LightSwitchInvites').live('click', function () {
+    $('#LightSwitchInvites').on('click', function () {
         setupDragAndDrop();
     });
     
-    $('#LightSwitchReset').live('click', function () {
+    $('#LightSwitchReset').on('click', function () {
         $('#NotFounds').remove();
         unhighlight();
         $('.mrErrorText').each(function () { $(this).detach(); });
@@ -856,7 +971,7 @@
 		alert('Now you can use "Escape" button to reset.');
     });
 	
-    $('#LightSwitchClear').live('click', function () {
+    $('#LightSwitchClear').on('click', function () {
 		alert("clear form");
 		$(':input,textarea', 'form[name="mainform"]').filter(function() { return !$(this).is(':button, :submit, :reset, :hidden, :disabled') && !$(this).prop('readonly'); }).val('').removeClass("x").removeAttr('checked').removeAttr('selected');
 		$(".total.text_input").each(function(){
@@ -878,17 +993,17 @@
 		});
     });
 	
-    $('#LightSwitchRandom').live('click', function () {
+    $('#LightSwitchRandom').on('click', function () {
 		$('.QuestionSpacing:first').prevUntil('.mrQuestionTable').addClass('QuestionArea');
         LightSwitchQuestionType($('.QuestionArea'));
-        if ($('.QuestionSpacing').size() > 0) {
+        if ($('.QuestionSpacing').length  > 0) {
             $('.QuestionSpacing').each(function () {
-                $('.MoreQuests').size() > 0 ? $('*').removeClass('MoreQuests') : 0;
+                $('.MoreQuests').length  > 0 ? $('*').removeClass('MoreQuests') : 0;
                 $(this).nextUntil('.QuestionSpacing').addClass('MoreQuests');
                 LightSwitchQuestionType($('.MoreQuests'));
             });
         }
-        $('#next').size() > 0 ? $('#next_button').click() : 0;
+        $('#next').length  > 0 ? $('#next_button').click() : 0;
         $('input[name="_Next"]').click();
     });
 	
@@ -914,7 +1029,7 @@
 	}
 
 	
-    $('#LightSwitchSubmit').live('click', function () {
+    $('#LightSwitchSubmit').on('click', function () {
 		
 		var firstrowID, colms, idx1, totradiobtn, ranum, numofqsn, totoeboxes, isRanking, totchkboxes;
 		totradiobtn = parseInt($(".graphical_select.radiobox").length);
@@ -1208,7 +1323,7 @@
 				
 			});
 		}*/
-		$('#next_button').size() > 0 ? $('#next_button').click() : 0;
+		$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 		$('#next_button').click();
 		
     });

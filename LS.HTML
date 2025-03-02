@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Google Chrome Extension View</title>
+        <title>firefox Extension View</title>
         <style>
         	#LightSwitchNavigatorsParent{
         		position: absolute;
@@ -171,25 +171,25 @@
 			    -webkit-user-select: none;
 			}
         </style>
-        <script src="jquery-1.7.1.min.js"></script>	
+        <script src="jquery-3.7.1.min.js"></script>	
 		<script src="xlsx.full.min.js"></script>
         <script>
         	$(document).ready(function(){
         		$('a.LightSwitchNavigators').click(function(e){
         			e.preventDefault();
         		});
-        		$('.LightSwitchMenuItem').live('click',function(){
-        			$(this).next('tr.LightSwitchBox').toggle('slow');
+        		$('.LightSwitchMenuItem').on('click',function(){
+        			$(this).next('tr.LightSwitchBox').slideToggle('slow');
         			$(this).parents('#LightSwitchMenuBoxes').find('tr.LightSwitchBox').not($(this).next('tr.LightSwitchBox')).hide();
         		});
         		$('#LightSwitchPropertiesTR').click();
-        		$('#LightSwitchWhat').live('click',function(){
-        			$('#LightSwitchLogoText').toggle('slow');
+        		$('#LightSwitchWhat').on('click',function(){
+        			$('#LightSwitchLogoText').slideToggle('slow');
         		});
-        		$('#LightSwitchMinimize').live('click',function(){
+        		$('#LightSwitchMinimize').on('click',function(){
         			$('.LightSwitchProperty').fadeOut('slow');
         		});
-        		$('#LightSwitchMaximize').live('click',function(){
+        		$('#LightSwitchMaximize').on('click',function(){
         			$('.LightSwitchTopMenu,.LightSwitchMenuItem').fadeIn('slow');
         		});
 				$("#LightSwitchSettingsBox").hide();
