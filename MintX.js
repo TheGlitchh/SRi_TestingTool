@@ -19,6 +19,7 @@
     $('#LightSwitchMenuIt').html(`
         <center>
             <span>&nbsp;&nbsp;&nbsp;</span>
+            <input type="button" id="LightSwitchVerifyLogics" value="VerifyLogics" class="LightSwitchNavigators"/> 
             <input type="button" id="LightSwitchInvites" value="ReInvites" class="LightSwitchNavigators"/> 
             <input type="button" id="LightSwitchMatch" value="Match" class="LightSwitchNavigators"/> 
             <input type="button" id="LightSwitchReset" value="Reset" class="LightSwitchNavigators"/> 
@@ -69,7 +70,7 @@
     }
 });
 
-/*$('#LightSwitchVerifyLogics').on('click', function () {
+$('#LightSwitchVerifyLogics').on('click', function () {
     console.log("Starting validation and verification of questions...");
 
     $('div.question').each(function () {
@@ -85,13 +86,43 @@
             }
             validationPassed = $q.find('input[type="radio"]:checked').length > 0;
         }
-        // 2. Multi-Select (Checkboxes)
+        // 2. Multi-Select (Checkboxes) with additional validations
         else if ($q.find('input[type="checkbox"]').length > 0) {
             questionType = "Multi Select";
-            if ($q.find('input[type="checkbox"]:checked').length === 0) {
-                $q.find('input[type="checkbox"]').prop('checked', true);
+            let checkboxes = $q.find('input[type="checkbox"]');
+            let otherSpecifyBox = $q.find('input[type="text"].other-specify');
+
+            // Case 1: Select all checkboxes and fill other specify box
+            checkboxes.prop('checked', true);
+            if (otherSpecifyBox.length > 0) {
+                otherSpecifyBox.val("Test Input");
             }
-            validationPassed = $q.find('input[type="checkbox"]:checked').length > 0;
+            let verifyResult1 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
+            if (!verifyResult1) {
+                console.error("Multi Select validation FAILED: Selecting all checkboxes caused an issue ❌");
+            }
+
+            // Case 2: Uncheck other specify checkbox but leave text in other specify box
+            checkboxes.prop('checked', false);
+            if (otherSpecifyBox.length > 0) {
+                otherSpecifyBox.val("Test Input");
+            }
+            let verifyResult2 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
+            if (verifyResult2) {
+                console.error("Multi Select validation FAILED: Other specify checkbox unselected but text entered caused an issue ❌");
+            }
+
+            // Case 3: Check other specify checkbox but leave text box empty
+            if (otherSpecifyBox.length > 0) {
+                otherSpecifyBox.val("");
+            }
+            checkboxes.last().prop('checked', true);
+            let verifyResult3 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
+            if (verifyResult3) {
+                console.error("Multi Select validation FAILED: Other specify checkbox selected but text box empty caused an issue ❌");
+            }
+
+            validationPassed = checkboxes.filter(':checked').length > 0;
         }
         // 3. Dropdown (Combo Box)
         else if ($q.find('select').length > 0) {
@@ -164,7 +195,8 @@
     script.remove();
 
     console.log("All question validations processed.");
-}); */
+});
+
 
 
 
