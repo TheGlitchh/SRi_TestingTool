@@ -73,72 +73,110 @@
 $('#LightSwitchVerifyLogics').on('click', function () {
     console.log("Starting validation and verification of questions...");
 
+    function injectScript(code) {
+        let script = document.createElement('script');
+        script.textContent = code;
+        document.documentElement.appendChild(script);
+        script.remove();
+    }
+
+    function selectCheckboxById(checkboxId, value) {
+        injectScript(`
+            (function() {
+                if (typeof SSI_SetSelect === "function") {
+                    SSI_SetSelect("${checkboxId}", ${value});
+                    console.log("SSI_SetSelect executed for:", "${checkboxId}", "with value:", ${value});
+                } else {
+                    console.error("SSI_SetSelect() function is not found on the page.");
+                }
+            })();
+        `);
+    }
+
+    function verifySSI() {
+        injectScript(`
+            (function() {
+                if (typeof SSI_Verify === "function") {
+                    let verifyResult = SSI_Verify();
+                    console.log("SSI_Verify() executed. Result:", verifyResult);
+                } else {
+                    console.error("SSI_Verify() function is not found on the page.");
+                }
+            })();
+        `);
+    }
+
     $('div.question').each(function () {
         let $q = $(this);
         let questionType = "Unknown";
         let validationPassed = false;
 
-        // 1. Single-Select (Radio Buttons)
         if ($q.find('input[type="radio"]').length > 0) {
             questionType = "Single Select";
-            if ($q.find('input[type="radio"]:checked').length === 0) {
-                $q.find('input[type="radio"]').first().prop('checked', true);
+            let $radio = $q.find('input[type="radio"]');
+            if ($radio.filter(':checked').length === 0) {
+                $radio.first().prop('checked', true);
             }
-            validationPassed = $q.find('input[type="radio"]:checked').length > 0;
-        }
-        // 2. Multi-Select (Checkboxes) with additional validations
+            validationPassed = $radio.filter(':checked').length > 0;
+        } 
+        
         else if ($q.find('input[type="checkbox"]').length > 0) {
             questionType = "Multi Select";
             let checkboxes = $q.find('input[type="checkbox"]');
-            let otherSpecifyBox = $q.find('input[type="text"].other-specify');
+            let otherSpecifyBox = $q.find('input[type="text"].open_end_text_box');
 
             // Case 1: Select all checkboxes and fill other specify box
-            checkboxes.prop('checked', true);
-            if (otherSpecifyBox.length > 0) {
-                otherSpecifyBox.val("Test Input");
-            }
-            let verifyResult1 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
-            if (!verifyResult1) {
-                console.error("Multi Select validation FAILED: Selecting all checkboxes caused an issue ❌");
-            }
+            checkboxes.each(function () {
+                let checkboxId = $(this).attr('id');
+                if (checkboxId) selectCheckboxById(checkboxId, 1);
+            });
 
-            // Case 2: Uncheck other specify checkbox but leave text in other specify box
-            checkboxes.prop('checked', false);
-            if (otherSpecifyBox.length > 0) {
-                otherSpecifyBox.val("Test Input");
-            }
-            let verifyResult2 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
-            if (verifyResult2) {
-                console.error("Multi Select validation FAILED: Other specify checkbox unselected but text entered caused an issue ❌");
-            }
+            if (otherSpecifyBox.length > 0) otherSpecifyBox.val("Test Input");
 
-            // Case 3: Check other specify checkbox but leave text box empty
-            if (otherSpecifyBox.length > 0) {
-                otherSpecifyBox.val("");
-            }
-            checkboxes.last().prop('checked', true);
-            let verifyResult3 = typeof SSI_Verify === "function" ? SSI_Verify() : false;
-            if (verifyResult3) {
-                console.error("Multi Select validation FAILED: Other specify checkbox selected but text box empty caused an issue ❌");
-            }
+            setTimeout(() => {
+                verifySSI();
+                
+
+                // Case 2: Uncheck all checkboxes but leave text in other specify box
+                checkboxes.each(function () {
+                    let checkboxId = $(this).attr('id');
+                    if (checkboxId) selectCheckboxById(checkboxId, 0);
+                });
+
+                if (otherSpecifyBox.length > 0) otherSpecifyBox.val("Test Input");
+
+                setTimeout(() => {
+                    verifySSI();
+
+                    // Case 3: Check the last checkbox but leave text box empty
+                    if (otherSpecifyBox.length > 0) otherSpecifyBox.val("");
+                    let lastCheckbox = checkboxes.last();
+                    if (lastCheckbox.length > 0) {
+                        let lastCheckboxId = lastCheckbox.attr('id');
+                        if (lastCheckboxId) selectCheckboxById(lastCheckboxId, 1);
+                    }
+
+                    setTimeout(verifySSI, 500);
+                }, 1000);
+            }, 500);
 
             validationPassed = checkboxes.filter(':checked').length > 0;
-        }
-        // 3. Dropdown (Combo Box)
+        } 
+        
         else if ($q.find('select').length > 0) {
             questionType = "Dropdown";
             let $select = $q.find('select');
+            let $firstValid = $select.find('option').filter(function() {
+                return $(this).val() !== "";
+            }).first();
+
             if (!$select.val() || $select.val() === "") {
-                let $firstValid = $select.find('option').filter(function() {
-                    return $(this).val() !== "";
-                }).first();
-                if ($firstValid.length > 0) {
-                    $select.val($firstValid.val());
-                }
+                if ($firstValid.length > 0) $select.val($firstValid.val());
             }
-            validationPassed = $select.val() && $select.val() !== "";
-        }
-        // 4. Open-End (Text Input / Textarea)
+
+            validationPassed = !!$select.val();
+        } 
+        
         else if ($q.find('input[type="text"], textarea').length > 0) {
             questionType = "Open End";
             let $input = $q.find('input[type="text"], textarea');
@@ -146,29 +184,21 @@ $('#LightSwitchVerifyLogics').on('click', function () {
                 $input.val("Test Answer");
             }
             validationPassed = $input.val().trim() !== "";
-        }
-        // 5. Ranking Questions
+        } 
+        
         else if ($q.hasClass('ranking')) {
             questionType = "Ranking";
-            let allRanked = true;
-            $q.find('input.ranking-input').each(function () {
-                if (!$(this).val() || $(this).val().trim() === "") {
-                    allRanked = false;
-                }
-            });
-            validationPassed = allRanked;
-        }
-        // 6. Constant Sum Questions
+            validationPassed = $q.find('input.ranking-input').toArray().every(input => $(input).val().trim() !== "");
+        } 
+        
         else if ($q.hasClass('constant-sum')) {
             questionType = "Constant Sum";
             let requiredSum = parseFloat($q.data('required-sum')) || 100;
-            let total = 0;
-            $q.find('input.constant-sum-input').each(function () {
-                let val = parseFloat($(this).val());
-                if (!isNaN(val)) {
-                    total += val;
-                }
-            });
+            let total = $q.find('input.constant-sum-input').toArray().reduce((sum, input) => {
+                let val = parseFloat($(input).val());
+                return sum + (isNaN(val) ? 0 : val);
+            }, 0);
+
             validationPassed = (total === requiredSum);
         }
 
@@ -179,23 +209,10 @@ $('#LightSwitchVerifyLogics').on('click', function () {
         }
     });
 
-    // Inject script to execute SSI_Verify() within the page context
-    let script = document.createElement('script');
-    script.textContent = `
-        (function() {
-            if (typeof SSI_Verify === "function") {
-                let verifyResult = SSI_Verify();
-                console.log("SSI_Verify() executed. Result:", verifyResult);
-            } else {
-                console.error("SSI_Verify() function is not found on the page.");
-            }
-        })();
-    `;
-    document.documentElement.appendChild(script);
-    script.remove();
-
+    setTimeout(verifySSI, 500);
     console.log("All question validations processed.");
 });
+
 
 
 
