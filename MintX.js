@@ -51,23 +51,36 @@
     `);
     
     // Toggle animation
- $('.button11').on('click', function () {
     let menu = $('#LightSwitchMenuIt');
-    let svg = $(this).find('svg');
+    let button = $('.button11');
+    let svg = button.find('svg');
 
-    if (menu.height() === 0) {
-        menu.animate({ height: '50px' }, 2);
+    // Check localStorage for menu state
+    if (localStorage.getItem('menuVisible') === 'true') {
+        menu.css({'height': '50px', 'transition': 'none'});
+        //svg.removeClass('spin-ccw');
     } else {
-        menu.animate({ height: '0px' }, 2);
+        menu.css('height', '0px');
+       // svg.removeClass('spin-ccw');
     }
 
-    // Toggle between clockwise and anticlockwise rotation
-    if (svg.hasClass('spin-cw')) {
-        svg.removeClass('spin-cw').addClass('spin-ccw');
-    } else {
-        svg.removeClass('spin-ccw').addClass('spin-cw');
-    }
-});
+    // Toggle animation and store state
+    button.on('click', function () {
+        if (menu.height() === 0) {
+            menu.css('height', '50px');
+            menu.animate({ height: '50px' }, 2);
+            svg.removeClass('spin-ccw');
+            svg.addClass('spin-cw');
+           
+            localStorage.setItem('menuVisible', 'true');
+        } else {
+            menu.animate({ height: '0px' }, 2);
+            svg.removeClass('spin-cw');
+            svg.addClass('spin-ccw');
+           
+            localStorage.setItem('menuVisible', 'false');
+        }
+    });
 
 /*$('#LightSwitchVerifyLogics').on('click', function () {
     console.log("Starting validation and verification of questions...");
