@@ -1,27 +1,23 @@
 {
-  "name": "SRI Lighthouse V3.6.2",
-  "manifest_version": 2,
-  "version": "3.6.2",
-  
+  "name": "SRI Lighthouse V4.0",
+  "manifest_version": 3,
+  "version": "4.0",
   "description": "Lighthouse Survey tester.",
-  "browser_action": {
+  "action": {
     "default_icon": "logo.png",
     "default_popup": "tester.html"
   },
-  "background": {
-    "scripts": ["background1.js", "jquery-3.7.1.min.js", "xlsx.full.min.js"],
-    "persistent": true
-  },
   "permissions": [
     "tabs",
-    "scripting",
-    "clipboardWrite",
     "contextMenus",
-    "clipboardRead",
     "cookies",
-    "debugger",
-    "unlimited_storage",
+    "scripting",
+    "storage",
     "notifications",
+    "clipboardRead",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
     "http://localhost/*",
     "https://selfserve.decipherinc.com/survey/*",
     "https://*.sawtoothsoftware.com/*",
@@ -41,7 +37,9 @@
         "https://sridemo2.sawtoothsoftware.com/*",
         "https://*.sawtoothsoftware.com/*"
       ],
-      "css": ["myCSS.css"],
+      "css": [
+        "myCSS.css"
+      ],
       "js": [
         "jquery-3.7.1.min.js",
         "underscore.js",
@@ -51,5 +49,23 @@
         "xlsx.full.min.js"
       ]
     }
-  ]
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "logo.png",
+        "tester.html",
+        "myCSS.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{ddfa6d03-f83c-4957-b015-ef2be86d6096}",
+      "strict_min_version": "109.0"
+    }
+  }
 }

@@ -5,7 +5,7 @@ async function getClipboard() {
         return text;
     } catch (err) {
         console.error("Clipboard read failed:", err);
-        return "tesrt"; // Return empty if clipboard read fails
+        return "test"; // Return empty if clipboard read fails
     }
 }
 
@@ -25,7 +25,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "openTabs" && Array.isArray(request.links)) {
         (async () => {
             for (let link of request.links) {
-                let modifiedLink = link.includes('?') ? link + 'rein=1' : link + '&rein=1';
+                let modifiedLink = link.includes('?') ? link + '&rein=1' : link + '&rein=1';
                 let tab = await browser.tabs.create({ url: modifiedLink, active: false });
 
                 try {

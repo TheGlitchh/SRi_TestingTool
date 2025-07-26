@@ -15,41 +15,41 @@
     $('body').append('<button class="button11"><svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" role="img" aria-labelledby="toolIconTitle" stroke="#606162" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" color="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"/><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/> <g id="SVGRepo_iconCarrier"> <title id="toolIconTitle">Tool</title> <path d="M9.74292939,13.7429294 C9.19135019,13.9101088 8.60617271,14 8,14 C4.6862915,14 2,11.3137085 2,8 C2,7.07370693 2.20990431,6.19643964 2.58474197,5.4131691 L6.94974747,9.77817459 L9.77817459,6.94974747 L5.4131691,2.58474197 C6.19643964,2.20990431 7.07370693,2 8,2 C11.3137085,2 14,4.6862915 14,8 C14,8.88040772 13.8103765,9.71652648 13.4697429,10.4697429 L20.5858636,17.5858636 C21.3669122,18.3669122 21.3669122,19.6332422 20.5858636,20.4142907 L19.9142907,21.0858636 C19.1332422,21.8669122 17.8669122,21.8669122 17.0858636,21.0858636 L9.74292939,13.7429294 Z"/> </g></svg></button>');
 
     $('body').append('<div id="LightSwitchMenuIt" style="background-color:#2f4f4f; position:fixed; bottom:0; left:0; width:100%; height:0px; overflow:hidden; transition: height 0.5s ease-in-out;"></div>');
-    
+
     $('#LightSwitchMenuIt').html(`
         <center>
             <span>&nbsp;&nbsp;&nbsp;</span>
-            <input type="button" id="LightSwitchInvites" value="ReInvites" class="LightSwitchNavigators"/> 
-            <input type="button" id="LightSwitchMatch" value="Match" class="LightSwitchNavigators"/> 
-            <input type="button" id="LightSwitchReset" value="Reset" class="LightSwitchNavigators"/> 
-            <input type="button" id="LightSwitchClear" value="Clear" class="LightSwitchNavigators"/> 
+            <input style="display:none" type="button" id="LightSwitchInvites" value="ReInvites" class="LightSwitchNavigators"/>
+            <input type="button" id="LightSwitchMatch" value="Match" class="LightSwitchNavigators"/>
+            <input type="button" id="LightSwitchReset" value="Reset" class="LightSwitchNavigators"/>
+            <input type="button" id="LightSwitchClear" value="Clear" class="LightSwitchNavigators"/>
             <input type="button" id="LightSwitchSubmit" value="Auto Submit" class="LightSwitchNavigators"/>
-            <input type="button" id="ImageMapping" value="Image Mapping" class="LightSwitchNavigators"/> 
-            <input type="button" id="RESPNUM" value="Resp Number" class="LightSwitchNavigators"/> 
-            <input type="button" id="Captcha" value="Submit Captcha" class="LightSwitchNavigators"/> 
-            <input type="button" id="Admin" value="Admin Link" class="LightSwitchNavigators"/> 
-            <input type="button" id="Login" value="Login" class="LightSwitchNavigators"/> 
-            <select name="credentials" id="credentials"> 
-                <option value="test">test</option> 
-                <option value="test1">test1</option> 
-                <option value="test2">test2</option> 
-                <option value="test3">test3</option> 
-                <option value="test4">test4</option> 
-                <option value="test5">test5</option> 
-                <option value="test6">test6</option> 
-                <option value="test7">test7</option> 
-                <option value="test8">test8</option> 
-                <option value="test9">test9</option>  
+            <input type="button" id="ImageMapping" value="Image Mapping" class="LightSwitchNavigators"/>
+            <input type="button" id="RESPNUM" value="Resp Number" class="LightSwitchNavigators"/>
+            <input type="button" id="Captcha" value="Submit Captcha" class="LightSwitchNavigators"/>
+            <input type="button" id="Admin" value="Admin Link" class="LightSwitchNavigators"/>
+            <input type="button" id="Login" value="Login" class="LightSwitchNavigators"/>
+            <select name="credentials" id="credentials">
+                <option value="test">test</option>
+                <option value="test1">test1</option>
+                <option value="test2">test2</option>
+                <option value="test3">test3</option>
+                <option value="test4">test4</option>
+                <option value="test5">test5</option>
+                <option value="test6">test6</option>
+                <option value="test7">test7</option>
+                <option value="test8">test8</option>
+                <option value="test9">test9</option>
                 <option value="test10">test10</option>
             </select>
-        </center> 
+        </center>
         <center>
             <span id="AllQs" class="LightSwitchMultiColor" style="text-align: center;background-color: rgb(210, 121, 121)">**All Matchings**</span>
             <span id="DupW" class="LightSwitchMultiColor" style="text-align: center;background-color: rgb(172, 180, 181)">**Duplicate words**</span>
             <span id="FormatS111" class="LightSwitchMultiColor" style="text-align: center;background-color:#7fc0de">**Formattings**</span>
         </center>
     `);
-    
+
     // Toggle animation
     let menu = $('#LightSwitchMenuIt');
     let button = $('.button11');
@@ -71,13 +71,13 @@
             menu.animate({ height: '50px' }, 2);
             svg.removeClass('spin-ccw');
             svg.addClass('spin-cw');
-           
+
             localStorage.setItem('menuVisible', 'true');
         } else {
             menu.animate({ height: '0px' }, 2);
             svg.removeClass('spin-cw');
             svg.addClass('spin-ccw');
-           
+
             localStorage.setItem('menuVisible', 'false');
         }
     });
@@ -184,8 +184,8 @@
 
 
 
-    
-	
+
+
 	var LightSwitchDropZone = document.getElementById('LightSwitchDropZone');
   	LightSwitchDropZone.addEventListener('dragover', handleDragOver, false);
   	LightSwitchDropZone.addEventListener('drop', handleFileSelect, false);
@@ -223,27 +223,27 @@
     });
 
 	 $('body').append('<div id="LightSwitchAboutBox" class="LightSwitchTogglingElement LightSwitchNavigators"></div>');
-	
-	$('#UseFulLinks').on('click', function () {			
+
+	$('#UseFulLinks').on('click', function () {
 			window.open('http://cdn.tns-global.com/multimedia/UK/usefulllinks/LINKS.html');
 	 });
 
-	$('#ImageMapping').on('click', function () {			
+	$('#ImageMapping').on('click', function () {
 			window.open('https://www.image-map.net/');
-	 });	 
+	 });
 
-	$('#RESPNUM').on('click', function () {			
+	$('#RESPNUM').on('click', function () {
 			var txt = $("input[name='hid_respnum']").val();
 			var respnum = txt.split(",");
 			alert(respnum[0]);
-	 });		 
-	$('#Captcha').on('click', function () {			
+	 });
+	$('#Captcha').on('click', function () {
 			var capt = $("div[id='CaptchaDiv']").html();
 			$("input[id='Captcha_r2_c1']").val(capt);
 			$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 			$('#next_button').click();
 	 });
-	$('#Admin').on('click', function () {			
+	$('#Admin').on('click', function () {
 			var original_url = document.URL;
 			var admin_url;
 			var x=original_url.split("/cgi-bin/")[0];
@@ -266,8 +266,8 @@
 				$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 				$('#next_button').click();
 			}
-	});		 
-	
+	});
+
 
     $('#LightSwitchProject').val(QuestionProperties().PID);
     $('#LightSwitchQuestion').val(QuestionProperties().QID);
@@ -506,16 +506,16 @@
         if (Developer == "false") {
             $('.LSDMODE').each(function () { $(this).remove(); });
         }
-       
+
 		//if (AutoSubmit == "true") {
           // $('#LightSwitchAutoSubmit').prop('checked',true);
-			//AutoSubmitTimer = setTimeout(function(){	
+			//AutoSubmitTimer = setTimeout(function(){
 			//	$('#next').length  > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
 //			},1500);
   //      }
 		if (AutoSubmit == "true") {
            $('#LightSwitchAutoSubmit').prop('checked',true);
-			AutoSubmitTimer = setTimeout(function(){	
+			AutoSubmitTimer = setTimeout(function(){
 				$('#LightSwitchRandom').click();
 				//$('#next').length  > 0 ? $('#next').click() : $('input[name="_NNext"]').click();
 			},1500);
@@ -682,23 +682,23 @@
 		$('#AllQs').css('background-color','rgb(210, 121, 121)');
 		$('#DupW').css('background-color','rgb(172, 180, 181)');
     }
-	
+
     async function sInvoker() {
         try {
             let clipboardText = await navigator.clipboard.readText();
             if (!clipboardText.trim()) return;
-    
+
             $('#NotFounds').remove();
             let frmtdData = $('<div></div>').append(clipboardText);
             let formats = { "b": [], "u": [], "s": [], "i": [], "sub": [], "sup": [] };
-    
+
             frmtdData.find('b,i,s,u,sup,sub').each(function () {
                 formats[this.nodeName.toLowerCase()].push($(this).text());
             });
-    
-            let a = ""; // Placeholder for formatting search if needed
+
+            let a = ""; // Placeholder for formatting search if needed will use it later not required now
             let b = doSearch(clipboardText.split('\n'));
-    
+
             let st = "";
             if (b.length > 0) {
                 st += "<center><h3>Mismatches</h3></center>";
@@ -712,7 +712,7 @@
                     st += `<br><input type='checkbox'><i><b>${count + 1}</b></i>:   ${c}`;
                 });
             }
-    
+
             if (st.length > 0) {
                 $('body').prepend('<div id="NotFounds" style="width:100%; border:1px solid gray; background-color:#E6E6FA; max-height:200px; overflow:scroll"></div>');
                 $('#NotFounds').html(st);
@@ -721,16 +721,16 @@
             console.error("Clipboard read failed:", err);
         }
     }
-    
-    
-    // Attach it to double-click event
-    $(document).dblclick(function () { 
-        sInvoker(); 
+
+
+    // attaching the invoker for the double click to check matches
+    $(document).dblclick(function () {
+        sInvoker();
     });
-    
+
 
     function setupDragAndDrop() {
-        
+
             const dropArea = document.createElement('div');
             dropArea.id = 'dropArea';
             dropArea.style.position = 'fixed';
@@ -744,56 +744,56 @@
             dropArea.style.width = '300px';
             dropArea.textContent = 'Please drag and drop the reinvites excel';
             document.body.appendChild(dropArea);
-    
+
             // Handle dragover and dragleave events
             dropArea.addEventListener('dragover', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                dropArea.style.backgroundColor = '#f0f0f0'; 
+                dropArea.style.backgroundColor = '#f0f0f0';
             });
-    
+
             dropArea.addEventListener('dragleave', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                dropArea.style.backgroundColor = ''; 
+                dropArea.style.backgroundColor = '';
             });
-    
+
             // Handle file drop
             dropArea.addEventListener('drop', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 dropArea.style.backgroundColor = '';
-    
+
                 const file = event.dataTransfer.files[0];
                 if (!file) {
                     alert('No file detected!');
                     return;
                 }
-    
+
                 if (!file.name.endsWith('.xlsx')) {
                     alert('Please drop a valid Excel (.xlsx) file!');
                     return;
                 }
-    
+
                 // Reading the Excel file
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const data = e.target.result;
                     const workbook = XLSX.read(data, { type: 'binary' });
-                    const sheetName = workbook.SheetNames[0]; 
+                    const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
-    
+
                     const links = [];
                     for (let row = 2; sheet['C' + row] != undefined; row++) { // Adjust the row and column format if necessary
                         const link = sheet['C' + row]?.v;
                         if (link) links.push(link);
                     }
-    
+
                     if (links.length === 0) {
                         alert('No valid links found in the file!');
                         return;
                     }
-    
+
                     // Send the links to the background script
                     chrome.runtime.sendMessage({ action: "openTabs", links: links }, (response) => {
                         if (response && response.status === "success") {
@@ -807,21 +807,21 @@
                 };
                 reader.readAsBinaryString(file);
             });
-    
+
             // Hide the drop area on pressing the Escape key
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') {
                     dropArea.style.display = 'none';
                 }
             });
-        
+
     }
-    
-    
+
+
     // Initialize the drag-and-drop setup
-    
-    
-    
+
+
+
     $('#NotFounds :checkbox').on('change', function () {
         if ($('#NotFounds :checkbox:checked').length  == $('#NotFounds :checkbox').length) {
             $('input[type="submit"]').show();
@@ -975,7 +975,7 @@
     $('#LightSwitchInvites').on('click', function () {
         setupDragAndDrop();
     });
-    
+
     $('#LightSwitchReset').on('click', function () {
         $('#NotFounds').remove();
         unhighlight();
@@ -983,7 +983,7 @@
         $('input[type="submit"]').show();
 		alert('Now you can use "Escape" button to reset.');
     });
-	
+
     $('#LightSwitchClear').on('click', function () {
 		alert("clear form");
 		$(':input,textarea', 'form[name="mainform"]').filter(function() { return !$(this).is(':button, :submit, :reset, :hidden, :disabled') && !$(this).prop('readonly'); }).val('').removeClass("x").removeAttr('checked').removeAttr('selected');
@@ -1005,7 +1005,7 @@
 			}
 		});
     });
-	
+
     $('#LightSwitchRandom').on('click', function () {
 		$('.QuestionSpacing:first').prevUntil('.mrQuestionTable').addClass('QuestionArea');
         LightSwitchQuestionType($('.QuestionArea'));
@@ -1019,7 +1019,7 @@
         $('#next').length  > 0 ? $('#next_button').click() : 0;
         $('input[name="_Next"]').click();
     });
-	
+
 	/* function to generate random words*/
 	function generateRandomWords(numWords) {
 		const words = [];
@@ -1030,7 +1030,7 @@
 		}
 		return words.join(' ');
 	}
-	
+
 	function getRandomElements(arr, n) {
 		// Shuffle the array using Fisher-Yates algorithm
 		for (let i = arr.length - 1; i > 0; i--) {
@@ -1041,9 +1041,9 @@
 		return arr.slice(0, n);
 	}
 
-	
+
     $('#LightSwitchSubmit').on('click', function () {
-		
+
 		var firstrowID, colms, idx1, totradiobtn, ranum, numofqsn, totoeboxes, isRanking, totchkboxes;
 		totradiobtn = parseInt($(".graphical_select.radiobox").length);
 		numofqsn = $(".grid.question").length;
@@ -1052,7 +1052,7 @@
 		totoeboxes=parseInt($("textarea").length)+parseInt($(".open_end_text_box").length);
 		isRanking=parseInt($(document).find('script:contains(SSI_RankCheck)').length);
 		totchkboxes=parseInt($(".graphical_select.checkbox").length);
-		
+
 		if(totradiobtn>0 && totradiobtn>totchkboxes)
 		{
 			$(".grid.question").each(function(){
@@ -1128,7 +1128,7 @@
 				idx = "#"+qname+"_"+ranum;
 				$(idx).attr('checked','checked');
 				$(idx).prev().attr("aria-checked",true).addClass("radioboxselected").removeClass("radiobox");
-				
+
 			});
 			$(".semanticdiff.question").each(function(){
 				qname=$(this).attr("id").split("_")[0];
@@ -1186,13 +1186,13 @@
 			$(".grid.question").each(function(){
 				qname=$(this).attr("id").split("_")[0];
 				rows=$('input[name="hid_row_list_'+qname+'"]').val().split(",");
-				colms=$('input[name="hid_col_list_'+qname+'"]').val().split(",");		
+				colms=$('input[name="hid_col_list_'+qname+'"]').val().split(",");
 				if(total_boxes>0)
 				{
 					colms.forEach(function(column){
 						sum=0;
 						max_num=max_num1;
-						rows.forEach(function(row, index, array){	
+						rows.forEach(function(row, index, array){
 							idx = "#"+qname+"_r"+row+"_c"+column;
 							if(rz){ ranum = Math.floor(Math.random() * (max_num - 1 + 1)) + 1; }
 							else { ranum = Math.floor(Math.random() * (max_num - 0 + 1)) + 0; }
@@ -1217,7 +1217,7 @@
 				else
 				{
 					colms.forEach(function(column){
-						rows.forEach(function(row){	
+						rows.forEach(function(row){
 							idx = "#"+qname+"_r"+row+"_c"+column;
 							if(rz){ ranum = Math.floor(Math.random() * (max_num - 1 + 1)) + 1; }
 							else { ranum = Math.floor(Math.random() * (max_num - 0 + 1)) + 0; }
@@ -1262,8 +1262,8 @@
 						{
 							$(idx).val(fill_count);
 						}
-						
-					}					
+
+					}
 				});
 			});
 			$(".question.ranking").each(function(){
@@ -1290,13 +1290,13 @@
 					rannum=Math.floor(Math.random() * 2);
 					blch=(rannum==1)? true: false;
 					idx = "#"+qname+"_"+list;
-					if(blch) 
-					{ 
-						$(idx).attr('checked','checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkboxselected").removeClass("checkbox"); 
+					if(blch)
+					{
+						$(idx).attr('checked','checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkboxselected").removeClass("checkbox");
 					}
-					else 
-					{ 
-						$(idx).removeAttr('checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkbox").removeClass("checkboxselected"); 
+					else
+					{
+						$(idx).removeAttr('checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkbox").removeClass("checkboxselected");
 					}
 				});
 			});
@@ -1310,13 +1310,13 @@
 						rannum=Math.floor(Math.random() * 2);
 						blch=(rannum==1)? true: false;
 						idx = "#"+qname+"_r"+row+"_c"+colm;
-						if(blch) 
-						{ 
-							$(idx).attr('checked','checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkboxselected").removeClass("checkbox"); 
-						}
-						else 
+						if(blch)
 						{
-							$(idx).removeAttr('checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkbox").removeClass("checkboxselected"); 
+							$(idx).attr('checked','checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkboxselected").removeClass("checkbox");
+						}
+						else
+						{
+							$(idx).removeAttr('checked'); $(idx).prev().attr("aria-checked",blch).addClass("checkbox").removeClass("checkboxselected");
 						}
 					});
 				});
@@ -1333,12 +1333,12 @@
 						$(this).val(randomString);
 					}
 				});
-				
+
 			});
 		}*/
 		$('#next_button').length  > 0 ? $('#next_button').click() : 0;
 		$('#next_button').click();
-		
+
     });
     var LightSwitchInitial = QuestionProperties();
     var LightSwitchReminders; //= localStorage.getItem(LightSwitchInitial.PID + "_Reminder").split('#');

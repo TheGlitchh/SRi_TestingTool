@@ -65,7 +65,7 @@ $(document).ready(function () {
         for (var i = 0; i < QuestData.length; i++) {
             var Record = QuestData[i];
             if (Record["Question"] === QID) {
-                str += `<tr><td colspan='3'><center><font style='color:green'><b>${Record["Question"]}</b></font></center></td></tr>`;
+                str += `<tr><td colspan='3'><center><font style=''><b>${Record["Question"]}</b></font></center></td></tr>`;
                 for (var prop in Record) {
                     if (prop !== "Question") {
                         str += `<tr><td style='width:110px'><center><font style='font-weight:bold;font-size:10px'>${prop}</font></center></td><td style='width:20px'><center>  :  </center></td><td style='width:250px'><span class='RetData'>${Record[prop]}</span></td></tr>`;
