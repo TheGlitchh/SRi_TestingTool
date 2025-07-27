@@ -8,7 +8,20 @@
         checkEmpty: function (obj) {
             return obj.b == null && obj.i == null && obj.u == null && obj.sup == null && obj.sub == null;
         }
+
+
     });
+
+        const isAutoMode = localStorage.getItem("LS_AutoMode") == "1";
+        if (isAutoMode) {
+            const checkReady = setInterval(() => {
+                if ($('#next_button').length && $('div.question').length) {
+                    clearInterval(checkReady);
+                    console.log("🔁 DOM ready. Continuing AutoMode...");
+                    runSurveyValidation();
+                }
+            }, 300);
+        }
     var timer;
 	var AutoSubmitTimer;
 	$('body').attr('id','LightSwitchDropZone');
@@ -19,7 +32,7 @@
     $('#LightSwitchMenuIt').html(`
         <center>
             <span>&nbsp;&nbsp;&nbsp;</span>
-            <input style="display:none" type="button" id="LightSwitchInvites" value="ReInvites" class="LightSwitchNavigators"/>
+            <input type="button" id="LightSwitchVerifyLogics" value="Automation" class="LightSwitchNavigators"/>
             <input type="button" id="LightSwitchMatch" value="Match" class="LightSwitchNavigators"/>
             <input type="button" id="LightSwitchReset" value="Reset" class="LightSwitchNavigators"/>
             <input type="button" id="LightSwitchClear" value="Clear" class="LightSwitchNavigators"/>
@@ -56,7 +69,7 @@
     let svg = button.find('svg');
 
     // Check localStorage for menu state
-    if (localStorage.getItem('menuVisible') === 'true') {
+    if (localStorage.getItem('menuVisible') == 'true') {
         menu.css({'height': '50px', 'transition': 'none'});
         //svg.removeClass('spin-ccw');
     } else {
@@ -66,7 +79,7 @@
 
     // Toggle animation and store state
     button.on('click', function () {
-        if (menu.height() === 0) {
+        if (menu.height() == 0) {
             menu.css('height', '50px');
             menu.animate({ height: '50px' }, 2);
             svg.removeClass('spin-ccw');
@@ -81,106 +94,331 @@
             localStorage.setItem('menuVisible', 'false');
         }
     });
+  
+    
+    $('#LightSwitchVerifyLogics').on('click', function () {
+        const currentStatus = localStorage.getItem("LS_AutoMode");
+    
+        if (currentStatus != "1") {
+            localStorage.setItem("LS_AutoMode", "1");
+            localStorage.setItem("LS_Step", "1");
+            console.log("✅ AutoMode started");
+            runSurveyValidation(); // Start automation
+        } else {
+            localStorage.setItem("LS_AutoMode", "0");
+            console.log("📄 Generating report...");
+            generateReportFromLogs();
+        }
+    });
+    
+// Core survey auto-validation logic
+function isInExtension(el) {
+    return $(el).closest('#LightSwitchDropZone').length > 0;
+}
 
-/*$('#LightSwitchVerifyLogics').on('click', function () {
-    console.log("Starting validation and verification of questions...");
+function runSurveyValidation() {
+    let report = [];
+    let step = parseInt(localStorage.getItem("LS_Step") || "1");
 
     $('div.question').each(function () {
         let $q = $(this);
+        let questionName = $q.find('span.test_question_label').text().trim() || $q.attr("id") || "Unnamed";
         let questionType = "Unknown";
         let validationPassed = false;
+        let logs = [];
 
-        // 1. Single-Select (Radio Buttons)
-        if ($q.find('input[type="radio"]').length > 0) {
+        // === SINGLE SELECT ===
+        if ($q.find('input[type="radio"]').not(isInExtension).length > 0 && !$q.find('input[type="checkbox"]').length) {
             questionType = "Single Select";
-            if ($q.find('input[type="radio"]:checked').length === 0) {
-                $q.find('input[type="radio"]').first().prop('checked', true);
-            }
-            validationPassed = $q.find('input[type="radio"]:checked').length > 0;
-        }
-        // 2. Multi-Select (Checkboxes)
-        else if ($q.find('input[type="checkbox"]').length > 0) {
+
+            if (runSSIVerify()) logs.push("❌ Valid response: empty selection allowed");
+            //else logs.push("✅ Valid response: empty selection blocked");
+
+            $q.find('input[type="radio"]').each(function () {
+                if (isInExtension(this)) return;
+
+                let $radio = $(this);
+                let id = $radio.attr("id");
+                $radio.click();
+
+                let $text = $q.find(`input[type="text"][id*="${id}"]`).filter(function () {
+                    return !isInExtension(this);
+                });
+
+                if ($text.length > 0) {
+                    $text.val("Other Test Text");
+                    if (!runSSIVerify()) {
+                        logs.push("❌ Other specify failed issue recorded");
+                    } else {
+                        logs.push("✅ Other specify accepted");
+                    }
+                } else {
+                    if (!runSSIVerify()) logs.push(`❌ Show stopper found: radio id = ${id}`);
+                }
+            });
+
+            $q.find('input[type="radio"]').not(isInExtension).first().click();
+            validationPassed = !logs.some(log => log.startsWith("❌"));         }
+
+        // === MULTI SELECT ===
+        else if ($q.find('input[type="checkbox"]').not(isInExtension).length > 0) {
             questionType = "Multi Select";
-            if ($q.find('input[type="checkbox"]:checked').length === 0) {
-                $q.find('input[type="checkbox"]').prop('checked', true);
+
+            if (runSSIVerify()) logs.push("❌ Valid response: empty selection allowed");
+           // else logs.push("✅ Valid response: empty selection blocked");
+
+            $q.find('input[type="checkbox"]').each(function () {
+                if (isInExtension(this)) return;
+                $(this).click();
+            });
+
+            $q.find('input[type="text"]').filter(function () {
+                return !isInExtension(this);
+            }).val("Other Text");
+
+            if (!runSSIVerify()) logs.push("❌ All checkbox checked and SSI_Verify failed");
+            else logs.push("✅ All checkbox checked passed SSI_Verify");
+
+            let $other = $q.find('input[type="text"]').filter(function () {
+                return !isInExtension(this);
+            });
+
+            if ($other.length > 0) {
+                let id = $other.attr("id");
+                let match = id.match(/_(\d+)_?other/i);
+                if (match) {
+                    let suffix = match[1];
+                    let $linked = $q.find(`#${questionName}_${suffix}`).filter(function () {
+                        return !isInExtension(this);
+                    });
+
+                    // Test case: checkbox checked but text empty
+                    $linked.click(); $other.val('');
+                    if (runSSIVerify()) logs.push("❌ Other specify validation failed for empty text");
+                    else logs.push("✅ Empty text blocked");
+
+                    // Test case: text filled but checkbox unchecked
+                    $linked.click(); $other.val('Filled');
+                    if (runSSIVerify()) logs.push("❌ Other specify validation failed for unchecked checkbox");
+                    else logs.push("✅ Text without checkbox blocked");
+                }
             }
-            validationPassed = $q.find('input[type="checkbox"]:checked').length > 0;
-        }
-        // 3. Dropdown (Combo Box)
+
+            $q.find('input[type="checkbox"]').not(isInExtension).first().click();
+            validationPassed = !logs.some(log => log.startsWith("❌"));         }
+
+        // === DROPDOWN ===
         else if ($q.find('select').length > 0) {
             questionType = "Dropdown";
             let $select = $q.find('select');
-            if (!$select.val() || $select.val() === "") {
-                let $firstValid = $select.find('option').filter(function() {
-                    return $(this).val() !== "";
-                }).first();
-                if ($firstValid.length > 0) {
-                    $select.val($firstValid.val());
-                }
+            $select.val('');
+            if (runSSIVerify()) logs.push("❌ Valid response: blank accepted");
+            else logs.push("✅ Blank dropdown blocked");
+
+            let $valid = $select.find('option[value!=""]').first();
+            if ($valid.length) {
+                $select.val($valid.val());
+                validationPassed = !logs.some(log => log.startsWith("❌"));     
+                            logs.push(validationPassed ? "✅ Valid dropdown accepted" : "❌ Valid dropdown failed");
             }
-            validationPassed = $select.val() && $select.val() !== "";
         }
-        // 4. Open-End (Text Input / Textarea)
-        else if ($q.find('input[type="text"], textarea').length > 0) {
+
+        // === OPEN END ===
+        else if ($q.find('input[type="text"], textarea').not(isInExtension).length > 0) {
             questionType = "Open End";
-            let $input = $q.find('input[type="text"], textarea');
-            if (!$input.val() || $input.val().trim() === "") {
-                $input.val("Test Answer");
-            }
-            validationPassed = $input.val().trim() !== "";
-        }
-        // 5. Ranking Questions
-        else if ($q.hasClass('ranking')) {
-            questionType = "Ranking";
-            let allRanked = true;
-            $q.find('input.ranking-input').each(function () {
-                if (!$(this).val() || $(this).val().trim() === "") {
-                    allRanked = false;
-                }
+            let $input = $q.find('input[type="text"], textarea').filter(function () {
+                return !isInExtension(this);
             });
-            validationPassed = allRanked;
+            $input.val('');
+            if (runSSIVerify()) logs.push("❌ Valid response: empty input allowed");
+            else logs.push("✅ Empty input blocked");
+
+            $input.val("Test response");
+            validationPassed = !logs.some(log => log.startsWith("❌"));        
+                 logs.push(validationPassed ? "✅ Input accepted" : "❌ Input rejected");
         }
-        // 6. Constant Sum Questions
-        else if ($q.hasClass('constant-sum')) {
+
+        // === GRID RADIO / CHECKBOX ===
+        else if ($q.find('table.grid_table').length > 0) {
+            questionType = "Grid";
+            let $inputs = $q.find('input[type="radio"], input[type="checkbox"]').filter(function () {
+                return !isInExtension(this);
+            });
+
+            $inputs.each(function () {
+                $(this).click();
+            });
+
+            validationPassed = !logs.some(log => log.startsWith("❌"));      
+                   logs.push(validationPassed ? "✅ Grid input accepted" : "❌ Grid input rejected");
+        }
+
+        // === CONSTANT SUM ===
+        else if ($q.find('.constant-sum-input').length > 0) {
             questionType = "Constant Sum";
             let requiredSum = parseFloat($q.data('required-sum')) || 100;
-            let total = 0;
-            $q.find('input.constant-sum-input').each(function () {
-                let val = parseFloat($(this).val());
-                if (!isNaN(val)) {
-                    total += val;
-                }
+
+            let $inputs = $q.find('.constant-sum-input').filter(function () {
+                return !isInExtension(this);
             });
-            validationPassed = (total === requiredSum);
+
+            let valuePerInput = Math.floor(requiredSum / $inputs.length);
+
+            $inputs.each(function () {
+                $(this).val(valuePerInput);
+            });
+
+            validationPassed = !logs.some(log => log.startsWith("❌"));        
+                 logs.push(validationPassed ? "✅ Constant sum accepted" : "❌ Constant sum invalid");
         }
 
-        if (validationPassed) {
-            console.log(`${questionType} validation PASSED ✅`);
-        } else {
-            console.error(`${questionType} validation FAILED ❌`);
+        // === MAXDIFF ===
+        else if ($q.find('.maxdiff').length > 0 || ($q.text().includes("Best") && $q.text().includes("Worst"))) {
+            questionType = "MaxDiff";
+            let $best = $q.find('input.best').filter(function () {
+                return !isInExtension(this);
+            }).first();
+            let $worst = $q.find('input.worst').filter(function () {
+                return !isInExtension(this);
+            }).last();
+
+            $best.click();
+            $worst.click();
+
+            validationPassed = !logs.some(log => log.startsWith("❌"));        
+                 logs.push(validationPassed ? "✅ MaxDiff accepted" : "❌ MaxDiff rejected");
         }
+
+        // === CONJOINT ===
+        else if ($q.find('input[id*="aca"]').length > 0 || $q.hasClass('acarating') || $q.hasClass('acaimportance') || $q.hasClass('acapair')) {
+            questionType = "Conjoint";
+            $q.find('input[type="radio"]').filter(function () {
+                return !isInExtension(this);
+            }).first().click();
+
+            validationPassed = !logs.some(log => log.startsWith("❌"));     
+                    logs.push(validationPassed ? "✅ Conjoint accepted" : "❌ Conjoint rejected");
+        }
+
+        // === RANKING ===
+        else if ($q.find('.ranking-input').length > 0) {
+            questionType = "Ranking";
+            let count = 1;
+            $q.find('.ranking-input').each(function () {
+                if (isInExtension(this)) return;
+                $(this).val(count++);
+            });
+
+            validationPassed = !logs.some(log => log.startsWith("❌"));       
+                  logs.push(validationPassed ? "✅ Ranking accepted" : "❌ Ranking rejected");
+        }
+
+        report.push({
+            questionName,
+            questionType,
+            validationPassed,
+            logs
+        });
     });
 
-    // Inject script to execute SSI_Verify() within the page context
-    let script = document.createElement('script');
-    script.textContent = `
-        (function() {
-            if (typeof SSI_Verify === "function") {
-                let verifyResult = SSI_Verify();
-                console.log("SSI_Verify() executed. Result:", verifyResult);
-            } else {
-                console.error("SSI_Verify() function is not found on the page.");
+    localStorage.setItem(`LS_Report_Step_${step}`, JSON.stringify(report));
+    localStorage.setItem("LS_Step", (step + 1).toString());
+
+    console.log(`✅ Step ${step} done, navigating...`);
+    setTimeout(() => $('#next_button').click(), 500);
+}
+
+
+
+
+// Helper to run SSI_Verify safely
+function runSSIVerify() {
+    try {
+        if (typeof SSI_Verify == 'function') {
+            return SSI_Verify();
+        }
+    } catch (e) {
+        console.error("SSI_Verify error:", e);
+    }
+    return false;
+}
+
+    
+    
+
+
+
+function generateReportFromLogs() {
+    let step = 1;
+    let seenQuestions = new Set();
+    let reportText = "📋 Lighthouse Studio Survey Validation Report\n\n";
+    let keysToDelete = [];
+
+    while (true) {
+        let key = `LS_Report_Step_${step}`;
+        let data = localStorage.getItem(key);
+        if (!data) break;
+
+        let questions;
+        try {
+            questions = JSON.parse(data);
+            keysToDelete.push(key); // mark for deletion after processing
+        } catch (e) {
+            console.error(`❌ Failed to parse report for step ${step}`);
+            step++;
+            continue;
+        }
+
+        questions.forEach(q => {
+            let identifier = `${q.questionName}-${q.questionType}`;
+            if (!seenQuestions.has(identifier)) {
+                seenQuestions.add(identifier);
+                reportText += `QID: ${q.questionName}\n`;
+                reportText += `Type: ${q.questionType}\n`;
+                reportText += `Overall Result: ${q.validationPassed ? "✅ PASSED" : "❌ FAILED"}\n`;
+
+                if (q.logs && q.logs.length > 0) {
+                    q.logs.forEach(log => {
+                        reportText += `- ${log}\n`;
+                    });
+                }
+
+                reportText += `\n`;
             }
-        })();
-    `;
-    document.documentElement.appendChild(script);
-    script.remove();
+        });
 
-    console.log("All question validations processed.");
-}); */
+        step++;
+    }
+
+    if (seenQuestions.size === 0) {
+        reportText += "No validation data found.\n";
+    }
+
+    // Generate timestamped filename
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const filename = `Lighthouse_Validation_Report_${timestamp}.txt`;
+
+    // Download report
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // 🔄 Reset localStorage
+    keysToDelete.forEach(key => localStorage.removeItem(key));
+    localStorage.removeItem("LS_Step");
+
+    console.log("🧹 Report generated and localStorage cleaned up.");
+}
 
 
-
+    
+    
 
 
 
@@ -282,9 +520,9 @@
             NoteType = PID + "_Reminder";
         }
         var Note = $('#LightSwitchNotepadArea').val();
-        if (PID !== null && QID !== null && NoteType !== null && Note !== null) {
+        if (PID != null && QID != null && NoteType != null && Note != null) {
             var Data = "#" + QID + "*" + Note;
-            if (localStorage.getItem(NoteType) === null) {
+            if (localStorage.getItem(NoteType) == null) {
                 localStorage.setItem(NoteType, Data);
             }
             else {
@@ -306,7 +544,7 @@
             NoteType = PID + "_Reminder";
         }
         var data = localStorage.getItem(NoteType);
-        if (data !== null) {
+        if (data != null) {
             var AllNotes = data.split('#');
             var str = "<center><table width='90%' id='LightSwitchDynNote'>";
             for (var i = 0; i < AllNotes.length; i++) {
@@ -333,7 +571,7 @@
             NoteType = PID + "_Reminder";
         }
         var data = localStorage.getItem(NoteType);
-        if (data !== null) {
+        if (data != null) {
             var AllNotes = data.split('#');
             var str = "";
             var counter = 1;
@@ -420,7 +658,7 @@
             };
         }
     }
-    if (localStorage.getItem("LightSwitchSettings") === null) {
+    if (localStorage.getItem("LightSwitchSettings") == null) {
         var infiniteScrollEnabled = {
             "Precode": "false",
             "Developer": "false",
@@ -789,14 +1027,14 @@
                         if (link) links.push(link);
                     }
 
-                    if (links.length === 0) {
+                    if (links.length == 0) {
                         alert('No valid links found in the file!');
                         return;
                     }
 
                     // Send the links to the background script
                     chrome.runtime.sendMessage({ action: "openTabs", links: links }, (response) => {
-                        if (response && response.status === "success") {
+                        if (response && response.status == "success") {
                             alert(response.message);
                             dropArea.style.display = 'none';
                         } else {
@@ -810,7 +1048,7 @@
 
             // Hide the drop area on pressing the Escape key
             document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
+                if (event.key == 'Escape') {
                     dropArea.style.display = 'none';
                 }
             });
@@ -1181,7 +1419,7 @@
 			if($('div.footer').find('script:contains(restrict_zero)').text().match(/restrict_zero\s*=\s*(true|false)/))
 			{
 				var rz = $('div.footer').find('script:contains(restrict_zero)').text().match(/restrict_zero\s*=\s*(true|false)/)[0].split("=")[1].trim();
-				rz = (rz === 'true'); // Convert the string 'true'/'false' to a boolean
+				rz = (rz == 'true'); // Convert the string 'true'/'false' to a boolean
 			}
 			$(".grid.question").each(function(){
 				qname=$(this).attr("id").split("_")[0];
@@ -1198,7 +1436,7 @@
 							else { ranum = Math.floor(Math.random() * (max_num - 0 + 1)) + 0; }
 							if(!($(idx).is(":disabled") || $(idx).prop("readonly") || $(idx).is(":hidden")) && sum<max_num1 && ranum>=0)
 							{
-								if (index === array.length - 1)
+								if (index == array.length - 1)
 								{
 									ranum=max_num;
 								}
